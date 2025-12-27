@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rendering Diagnostic Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 { margin-top: 0; color: #333; }
+    pre {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .success { color: #67C23A; }
+    .error { color: #F56C6C; }
+    .warning { color: #E6A23C; }
+    button {
+      background: #409EFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover { background: #66b1ff; }
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { padding: 8px 0; border-bottom: 1px solid #eee; }
+    .checklist li:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Vue App Rendering Diagnostic</h1>
+  
+  <div class="section">
+    <h2>Instructions</h2>
+    <ol>
+      <li>Open your Vue app in another tab (http://localhost:8080)</li>
+      <li>Login and navigate to the positions list page</li>
+      <li>Open browser DevTools (F12)</li>
+      <li>Go to Console tab</li>
+      <li>Copy and paste the diagnostic scripts below</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2>1. Check Vue App Mount</h2>
+    <pre>// Run this in console
+console.log('=== Vue App Check ===');
+console.log('App element:', document.getElementById('app'));
+console.log('App innerHTML length:', document.getElementById('app')?.innerHTML?.length);
+console.log('Router view:', document.querySelector('.app-layout'));
+console.log('Main content:', document.querySelector('.main-content'));
+console.log('Page container:', document.querySelector('.page-container'));</pre>
+  </div>
+
+  <div class="section">
+    <h2>2. Check Position Cards</h2>
+    <pre>// Run this in console
+console.log('=== Position Cards Check ===');
+const cards = document.querySelectorAll('.position-card');
+console.log('Number of position cards:', cards.length);
+if (cards.length > 0) {
+  console.log('First card:', cards[0]);
+  console.log('First card visible:', cards[0].offsetHeight > 0);
+  console.log('First card styles:', window.getComputedStyle(cards[0]));
+} else {
+  console.log('No position cards found in DOM');
+  console.log('Position list container:', document.querySelector('.position-list'));
+}</pre>
+  </div>
+
+  <div class="section">
+    <h2>3. Check Vue Data</h2>
+    <pre>// Run this in console (if using Vue DevTools)
+// Or check the component's reactive data
+console.log('=== Vue Data Check ===');
+// Look for the positions array in Vue DevTools
+// Check if positions.value has data
+// Check if loading.value is false</pre>
+  </div>
+
+  <div class="section">
+    <h2>4. Check CSS Issues</h2>
+    <pre>// Run this in console
+console.log('=== CSS Check ===');
+const positionList = document.querySelector('.position-list');
+if (positionList) {
+  const styles = window.getComputedStyle(positionList);
+  console.log('Position list display:', styles.display);
+  console.log('Position list visibility:', styles.visibility);
+  console.log('Position list opacity:', styles.opacity);
+  console.log('Position list height:', styles.height);
+  console.log('Position list overflow:', styles.overflow);
+} else {
+  console.log('Position list element not found');
+}</pre>
+  </div>
+
+  <div class="section">
+    <h2>5. Check Element Plus Components</h2>
+    <pre>// Run this in console
+console.log('=== Element Plus Check ===');
+console.log('El-card elements:', document.querySelectorAll('.el-card').length);
+console.log('El-empty element:', document.querySelector('.el-empty'));
+console.log('Loading overlay:', document.querySelector('.el-loading-mask'));</pre>
+  </div>
+
+  <div class="section">
+    <h2>6. Force Re-render Test</h2>
+    <pre>// Run this in console to test if it's a rendering issue
+const positionList = document.querySelector('.position-list');
+if (positionList) {
+  positionList.style.display = 'none';
+  setTimeout(() => {
+    positionList.style.display = 'block';
+    console.log('Re-render triggered');
+  }, 100);
+}</pre>
+  </div>
+
+  <div class="section">
+    <h2>7. Check Network Requests</h2>
+    <pre>// Check in Network tab (F12 -> Network)
+// Look for: GET /api/positions?page=1&limit=10
+// Status should be: 200
+// Response should contain: {"success":true,"data":{"positions":[...]}}
+// If you see the request but no data displayed, it's a rendering issue</pre>
+  </div>
+
+  <div class="section">
+    <h2>Common Issues Checklist</h2>
+    <ul class="checklist">
+      <li>✓ Check if positions array is empty (length = 0)</li>
+      <li>✓ Check if loading is stuck at true</li>
+      <li>✓ Check if el-empty is showing instead of cards</li>
+      <li>✓ Check if cards have display: none or visibility: hidden</li>
+      <li>✓ Check if cards have height: 0 or opacity: 0</li>
+      <li>✓ Check if there's a z-index issue</li>
+      <li>✓ Check if parent container has overflow: hidden</li>
+      <li>✓ Check console for JavaScript errors</li>
+      <li>✓ Check if Vue DevTools shows the data</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>8. Quick Fix Test</h2>
+    <p>If data is in console but not displaying, try this quick fix:</p>
+    <pre>// Run this in console
+// This will manually create a test card to see if it's a data binding issue
+const testCard = document.createElement('div');
+testCard.className = 'position-card';
+testCard.style.cssText = 'padding: 20px; margin: 10px; background: white; border: 1px solid #ddd;';
+testCard.innerHTML = '&lt;h3&gt;Test Position&lt;/h3&gt;&lt;p&gt;If you see this, the DOM is working&lt;/p&gt;';
+document.querySelector('.position-list')?.appendChild(testCard);
+console.log('Test card added');</pre>
+  </div>
+
+  <div class="section">
+    <h2>Expected Console Output</h2>
+    <p>When everything is working, you should see:</p>
+    <pre class="success">Fetching positions with params: {page: 1, limit: 10}
+Positions response: {success: true, data: {positions: Array(10), pagination: {...}}}
+Positions loaded: 10</pre>
+    
+    <p>And in the DOM:</p>
+    <pre class="success">Number of position cards: 10
+First card visible: true
+Position list display: block</pre>
+  </div>
+
+  <div class="section">
+    <h2>Debug Steps Summary</h2>
+    <ol>
+      <li><strong>Check Console Logs:</strong> Look for "Positions loaded: X" message</li>
+      <li><strong>Check Vue DevTools:</strong> Inspect component data (positions array)</li>
+      <li><strong>Check DOM:</strong> Run diagnostic scripts above</li>
+      <li><strong>Check CSS:</strong> Look for hidden/invisible elements</li>
+      <li><strong>Check Network:</strong> Verify API response in Network tab</li>
+    </ol>
+  </div>
+</body>
+</html>

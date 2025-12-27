@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple List Test</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/element-plus"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      background: white;
+      border-radius: 8px;
+    }
+    .position-card {
+      margin-bottom: 16px;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .position-card:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    .position-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .position-company {
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .position-info {
+      font-size: 14px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="page-container">
+      <h1>Position List Test</h1>
+      
+      <div v-loading="loading">
+        <p>Loading: {{ loading }}</p>
+        <p>Positions count: {{ positions.length }}</p>
+        <p>Total: {{ total }}</p>
+        
+        <button @click="fetchPositions" style="margin: 20px 0; padding: 10px 20px;">
+          Fetch Positions
+        </button>
+        
+        <div v-if="!loading && positions.length === 0">
+          <p style="text-align: center; color: #999; padding: 40px;">暂无岗位</p>
+        </div>
+        
+        <div v-for="position in positions" :key="position.id" class="position-card">
+          <div class="position-title">{{ position.title }}</div>
+          <div class="position-company">
+            🏢 {{ position.enterprise?.company_name || '未知企业' }}
+          </div>
+          <div class="position-info">
+            📅 {{ position.start_date }} 至 {{ position.end_date }} | 
+            👥 {{ position.available_slots }}/{{ position.total_slots }} | 
+            📊 {{ position.status }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+    const { ElLoading, ElMessage } = ElementPlus;
+
+    createApp({
+      setup() {
+        const loading = ref(false);
+        const positions = ref([]);
+        const total = ref(0);
+
+        const fetchPositions = async () => {
+          loading.value = true;
+          console.log('🔄 Fetching positions...');
+          
+          try {
+            const response = await fetch('http://localhost:3000/api/positions?page=1&limit=10');
+            const data = await response.json();
+            
+            console.log('📥 Response:', data);
+            
+            if (data.success) {
+              positions.value = data.data.positions || [];
+              total.value = data.data.pagination?.total || 0;
+              console.log('✅ Loaded:', positions.value.length, 'positions');
+            } else {
+              console.error('❌ API error:', data);
+              ElMessage.error('Failed to load positions');
+            }
+          } catch (error) {
+            console.error('❌ Fetch error:', error);
+            ElMessage.error('Network error');
+          } finally {
+            loading.value = false;
+            console.log('✅ Loading complete');
+          }
+        };
+
+        // Auto-fetch on mount
+        fetchPositions();
+
+        return {
+          loading,
+          positions,
+          total,
+          fetchPositions
+        };
+      }
+    })
+    .use(ElementPlus)
+    .mount('#app');
+  </script>
+</body>
+</html>
